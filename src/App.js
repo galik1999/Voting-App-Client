@@ -7,7 +7,7 @@ import MainScreen from './Components/MainScreen';
 import axios from "axios";
 import './App.css';
 
-const URL = 'https://voting-server-tgin.onrender.com'
+const URL = 'https://galik1999.github.io/voting-server'
 
 function App() {
   const [showMainScreen, setShowMainScreen] = useState(true);
@@ -102,8 +102,6 @@ function App() {
         const address = await signer.getAddress();
         const checksummedAddress = ethers.utils.getAddress(address);
         setAccount(checksummedAddress);
-        getCurrentStatus(); ///// get the current status.
-        getRemainingTime() ///// get remaining time.
         setIsConnected(true);
 
         checkVotingStatus();
