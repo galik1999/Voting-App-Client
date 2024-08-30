@@ -7,7 +7,7 @@ import MainScreen from './Components/MainScreen';
 import axios from "axios";
 import './App.css';
 
-const URL = 'https://voting-server-hlmprp6fq-galik1999s-projects.vercel.app'
+const URL = 'https://voting-server-seven.vercel.app'
 
 function App() {
   const [showMainScreen, setShowMainScreen] = useState(true);
