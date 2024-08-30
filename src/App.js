@@ -33,6 +33,7 @@ function App() {
     try {
       const res = await axios.get(`${URL}/contract_abi`);
       setContractAbi(res.data);
+      console.log(res.data) ////////////////////////////////////////////////////////////////////////////
       setHasServer(true)
     } catch (err) {
       if (err['message'] === 'Network Error') {
@@ -46,6 +47,7 @@ function App() {
     try {
       const res = await axios.get(`${URL}/contract_address`);
       setContractAddress(res.data);
+      console.log(res.data) /////////////////////////////////////////////////////////////////////////////
       setHasServer(true)
 
     } catch (err) {
@@ -100,6 +102,8 @@ function App() {
         const address = await signer.getAddress();
         const checksummedAddress = ethers.utils.getAddress(address);
         setAccount(checksummedAddress);
+        getCurrentStatus(); ///// get the current status.
+        getRemainingTime() ///// get remaining time.
         setIsConnected(true);
 
         checkVotingStatus();
