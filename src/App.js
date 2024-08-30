@@ -7,6 +7,7 @@ import MainScreen from './Components/MainScreen';
 import axios from "axios";
 import './App.css';
 
+const URL = 'https://voting-server-hlmprp6fq-galik1999s-projects.vercel.app'
 
 function App() {
   const [showMainScreen, setShowMainScreen] = useState(true);
@@ -30,7 +31,7 @@ function App() {
 
   const fetchContractAbi = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/contract_abi");
+      const res = await axios.get(`${URL}/contract_abi`);
       setContractAbi(res.data);
       setHasServer(true)
     } catch (err) {
@@ -43,7 +44,7 @@ function App() {
 
   const fetchContractAddress = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/contract_address");
+      const res = await axios.get(`${URL}/contract_address`);
       setContractAddress(res.data);
       setHasServer(true)
 
@@ -117,7 +118,7 @@ function App() {
       return;
     }
     try {
-      const response = await fetch('http://localhost:5000/verify', {
+      const response = await fetch(`${URL}/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -201,7 +202,7 @@ function App() {
       return;
     }
     try {
-      const response = await axios.get("http://localhost:5000/candidates");
+      const response = await axios.get(`${URL}/candidates`);
       const names = response.data.map((obj) => Object.keys(obj)[0]);
 
       setCandidates(names);
