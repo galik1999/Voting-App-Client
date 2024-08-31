@@ -7,7 +7,7 @@ import MainScreen from './Components/MainScreen';
 import axios from "axios";
 import './App.css';
 
-const URL = 'https://galik1999.github.io/voting-server'
+const URL = 'https://voting-server-tgin.onrender.com'
 
 function App() {
   const [showMainScreen, setShowMainScreen] = useState(true);
