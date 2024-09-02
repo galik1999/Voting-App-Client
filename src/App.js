@@ -6,8 +6,10 @@ import Connected from './Components/Connected';
 import MainScreen from './Components/MainScreen';
 import axios from "axios";
 import './App.css';
+import LoadingSpinner from './Components/LoadingSpinner';
 
-const URL = 'https://voting-server-tgin.onrender.com'
+// const URL = 'https://voting-server-tgin.onrender.com'
+const URL = 'http://localhost:5000'
 
 function App() {
   const [showMainScreen, setShowMainScreen] = useState(true);
@@ -29,6 +31,16 @@ function App() {
 
   const [hasServer, setHasServer] = useState(false)
 
+  const [adminLoginError, setAdminLoginError] = useState('')
+  const [isConnectedAdmin, setIsConnectedAdmin] = useState(false)
+  const [canConnectAdmin,setCanConnectAdmin] = useState(false)
+
+  const [userName, setUserName] = useState('')
+  const [password, setPassword] = useState('')
+
+  const [isDeploymentLoading,setIsDeploymentLoading] = useState(false)
+  const [loginButtonMsg,setLoginButtonMsg] = useState('')
+
   const fetchContractAbi = async () => {
     try {
       const res = await axios.get(`${URL}/contract_abi`);
@@ -49,6 +61,7 @@ function App() {
       setContractAddress(res.data);
       console.log(res.data) /////////////////////////////////////////////////////////////////////////////
       setHasServer(true)
+      res.data === "0x" ? setVotingStatus(false) : setVotingStatus(true)
 
     } catch (err) {
       if (err['message'] === 'Network Error') {
@@ -75,7 +88,7 @@ function App() {
   }, []);
   useEffect(() => {
     const fetchData = async () => {
-      if (contractAddress && contractAbi.length > 0) {
+      if (contractAddress && contractAbi.length > 0 && votingStatus) {
         await getRemainingTime();
         await getCurrentStatus();
       }
@@ -91,6 +104,54 @@ function App() {
       fetchResults();
     }
   }, [account, isVerified]);
+
+
+  function logInAdmin() {
+    if (!hasServer) {
+      setAdminLoginError('Please connect to the server first before starting the ballot.')
+      return;
+    }
+    if (votingStatus) {
+      setAdminLoginError('There is a ballot already. please wait for the ballot to finish or stop the server.')
+      return;
+    }
+    setCanConnectAdmin(true)
+  }
+  async function startBallot(event){
+    // check voting admin user name and password.
+    let response;
+    event.preventDefault(); // Prevent page refresh
+    try {
+      response = await axios.post(`${URL}/admin_auth`, {
+          "userName": userName,
+          "password": password
+      });
+      if(response){
+        setIsConnectedAdmin(response.data);
+        console.log('is connected: ', response)
+      }
+    } catch (error) {
+      console.error('There was an error!', error);
+    }
+    if(!response.data){
+      alert('user name or password are not correct.')
+      setUserName('')
+      setPassword('')
+      return;
+    }
+    setIsDeploymentLoading(true)
+    try{
+      await axios.post(`${URL}/start_ballot`, {})
+      alert('The ballot started successfully.')
+      window.location.reload();
+
+    }catch(error){
+      console.error('There was an error!', error);
+    }
+    finally {
+      setIsDeploymentLoading(false)
+    }
+  }
 
   async function connectToMetamask() {
     if (window.ethereum) {
@@ -253,7 +314,7 @@ function App() {
     <div className="App">
       {!hasServer ? (<>
         No connection to the server.
-      </>) : (
+      </>) : isDeploymentLoading ? (<LoadingSpinner/>) : (
         showMainScreen ? (
           <MainScreen onProceed={proceedToLogin} />
         ) : votingStatus ? (
@@ -276,7 +337,18 @@ function App() {
               verificationError={verificationError}
             />
           ) : (
-            <Login connectWallet={connectToMetamask} />
+            <Login
+            connectWallet={connectToMetamask}
+            logInAdmin={logInAdmin}
+            adminLoginError={adminLoginError}
+            isConnectedAdmin={isConnectedAdmin}
+            votingStatus = {votingStatus}
+            canConnectAdmin = {canConnectAdmin}
+            setUserName = {setUserName}
+            setPassword = {setPassword}
+            startBallot = {startBallot}
+            isDeploymentLoading = {isDeploymentLoading}
+            />
           )
         ) : isConnected ? (
           <Finished
@@ -287,7 +359,18 @@ function App() {
             getCands={getCandidateNames}
             votingResults={votingResults}
           />
-        ) : (<Login connectWallet={connectToMetamask} />)
+        ) : (<Login
+          connectWallet={connectToMetamask}
+          logInAdmin={logInAdmin}
+          adminLoginError={adminLoginError}
+          isConnectedAdmin={isConnectedAdmin}
+          votingStatus = {votingStatus}
+          canConnectAdmin = {canConnectAdmin}
+          setUserName = {setUserName}
+          setPassword = {setPassword}
+          startBallot = {startBallot}
+          isDeploymentLoading = {isDeploymentLoading}
+        />)
       )}
     </div>
   );
