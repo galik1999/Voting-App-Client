@@ -8,8 +8,8 @@ import axios from "axios";
 import './App.css';
 import LoadingSpinner from './Components/LoadingSpinner';
 
-// const URL = 'https://voting-server-tgin.onrender.com'
-const URL = 'http://localhost:5000'
+const URL = 'https://voting-server-tgin.onrender.com'
+// const URL = 'http://localhost:5000'
 
 function App() {
   const [showMainScreen, setShowMainScreen] = useState(true);
