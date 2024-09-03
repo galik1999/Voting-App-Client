@@ -36,7 +36,7 @@ const Finished = (props) => {
   }, []);
 
   return (
-    <div style={{height:'100%', overflow: 'auto'}}>
+    <div className="main-screen">
       <h1>Voting is Finished</h1>
       <CalloutBox
         loadingIndex={props.loadingIndex}

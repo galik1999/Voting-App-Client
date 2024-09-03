@@ -39,6 +39,7 @@ function App() {
   const [password, setPassword] = useState('')
 
   const [isDeploymentLoading,setIsDeploymentLoading] = useState(false)
+
   const [loginButtonMsg,setLoginButtonMsg] = useState('')
 
   const fetchContractAbi = async () => {
@@ -50,6 +51,7 @@ function App() {
     } catch (err) {
       if (err['message'] === 'Network Error') {
         setHasServer(false)
+        setVotingStatus(false)
       }
       console.log(err);
     }
@@ -66,6 +68,7 @@ function App() {
     } catch (err) {
       if (err['message'] === 'Network Error') {
         setHasServer(false)
+        setVotingStatus(false)
       }
       console.log(err);
     }
@@ -115,7 +118,7 @@ function App() {
       setAdminLoginError('There is a ballot already. please wait for the ballot to finish or stop the server.')
       return;
     }
-    setCanConnectAdmin(true)
+    setCanConnectAdmin(!canConnectAdmin)
   }
   async function startBallot(event){
     // check voting admin user name and password.
@@ -141,7 +144,14 @@ function App() {
     }
     setIsDeploymentLoading(true)
     try{
-      await axios.post(`${URL}/start_ballot`, {})
+      response = await axios.post(`${URL}/start_ballot`, {
+        "userName": userName,
+        "password": password
+      })
+      if(!response){
+        alert('The ballot did not starte successfully. Please try again.')
+        window.location.reload();  
+      }
       alert('The ballot started successfully.')
       window.location.reload();
 
@@ -220,6 +230,11 @@ function App() {
       await checkVotingStatus();
       await getCandidateNames();
     } catch (error) {
+      const error_msg = error['data']['message']
+      if(error_msg.includes('You have not received the token yet.')){
+        alert(`You still haven't received VTK, please wait.`)
+        return;
+      }
       console.log("Error during voting:", error);
     }
   }
@@ -297,6 +312,7 @@ function App() {
   function handleAccountsChanged(accounts) {
     setVotingResults([])
     setIsVerified(false)
+    setLoadingIndex(null)
     if (accounts.length > 0 && account !== accounts[0]) {
       const checksummedAddress = ethers.utils.getAddress(accounts[0]);
       setAccount(checksummedAddress);
@@ -339,13 +355,16 @@ function App() {
           ) : (
             <Login
             connectWallet={connectToMetamask}
+            contractAddress = {contractAddress}
             logInAdmin={logInAdmin}
             adminLoginError={adminLoginError}
             isConnectedAdmin={isConnectedAdmin}
             votingStatus = {votingStatus}
             canConnectAdmin = {canConnectAdmin}
             setUserName = {setUserName}
+            userName = {userName}
             setPassword = {setPassword}
+            password = {password}
             startBallot = {startBallot}
             isDeploymentLoading = {isDeploymentLoading}
             />
@@ -361,13 +380,16 @@ function App() {
           />
         ) : (<Login
           connectWallet={connectToMetamask}
+          contractAddress = {contractAddress}
           logInAdmin={logInAdmin}
           adminLoginError={adminLoginError}
           isConnectedAdmin={isConnectedAdmin}
           votingStatus = {votingStatus}
           canConnectAdmin = {canConnectAdmin}
           setUserName = {setUserName}
+          userName = {userName}
           setPassword = {setPassword}
+          password = {password}
           startBallot = {startBallot}
           isDeploymentLoading = {isDeploymentLoading}
         />)
